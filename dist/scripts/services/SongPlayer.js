@@ -1,8 +1,8 @@
 (function() {
-     function SongPlayer() {
+     function SongPlayer(Fixtures) {
         var SongPlayer = {};
 
-        var currentSong = null;
+        var currentAlbum = Fixtures.getAlbum();        
  /**
  * @desc Buzz object audio file
  * @type {Object}
@@ -16,7 +16,7 @@
 	 	var setSong = function(song) {
 		    if (currentBuzzObject) {
 		        currentBuzzObject.stop();
-		        currentSong.playing = null;
+		        SongPlayer.currentSong.playing = null;
 		    }
 		 
 		    currentBuzzObject = new buzz.sound(song.audioUrl, {
@@ -24,7 +24,7 @@
 		        preload: true
 		    });
 		 
-		    currentSong = song;
+		    SongPlayer.currentSong = song;
 		};
  /**
  * @function playSong
@@ -35,21 +35,68 @@
             currentBuzzObject.play();
             song.playing = true;
         }
+ /**
+ * @function stopSong
+ * @desc currentBuzzObject to play, and set song.playing to true
+ * @param {Object} song
+ */
+        var stopSong = function(){
+            currentBuzzObject.stop();
+            song.playing = null;
+        }
+        
+        var getSongIndex = function(song) {
+            return currentAlbum.songs.indexOf(song);
+        };
+        
+        SongPlayer.currentSong = null;
 
         SongPlayer.play = function(song) {
-        	if (currentSong !== song) {
+            song = song || SongPlayer.currentSong;
+        	if (SongPlayer.currentSong !== song) {
              	setSong(song);
              	playSong(song);
-           	} else if (currentSong === song) {
+           	} else if (SongPlayer.currentSong === song) {
          		if (currentBuzzObject.isPaused()) {
-                 	setSong(song);
+                 	playSong(song);
          		}
      		}
         };
         SongPlayer.pause = function(song) {
+            song = song || SongPlayer.currentSong;
 		    currentBuzzObject.pause();
 		    song.playing = false;
 		};
+/**
+* @function previous/next
+* @desc get currentSongIndex using getSongIndex, and minus/add it by one
+* @para na
+*/
+        SongPlayer.previous = function() {
+            var currentSongIndex = getSongIndex(SongPlayer.currentSong);
+            currentSongIndex--;
+
+            if (currentSongIndex < 0) {
+                stopSong();
+            } else {
+                var song = currentAlbum.songs[currentSongIndex];
+                setSong(song);
+                playSong(song);
+            }
+        }
+
+        SongPlayer.next = function() {
+            var currentSongIndex = getSongIndex(SongPlayer.currentSong);
+            currentSongIndex++;
+
+            if (currentSongIndex > currentAlbum.songs.length - 1){
+                stopSong()
+            } else {
+                var song = currentAlbum.songs[currentSongIndex];
+                setSong(song);
+                playSong(song);
+            }
+        }
 
         return SongPlayer;
      }
