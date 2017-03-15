@@ -1,4 +1,4 @@
-#Let's Jam
+# Let's Jam
 
-##Overview
+## Overview
 Let's Jam is a music player application built with AngularJS. It functions just like Spotify!
